@@ -90,7 +90,6 @@ const loginUser = async (req, res) => {
 
     // Xử lý so sánh password
     const validPassword = bcrypt.compareSync(password, user.password || null);
-    console.log("validPassword", validPassword);
 
     if (!validPassword) {
       return res.status(401).send({
@@ -110,7 +109,7 @@ const loginUser = async (req, res) => {
         email: user.email,
       },
       process.env.JWT_ACCESS_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "1d" }
     );
 
     return res.status(200).send({

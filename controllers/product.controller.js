@@ -49,7 +49,6 @@ const getListProduct = async (req, res) => {
 
 const getProductDetail = async (req, res) => {
   const { productId } = req.params;
-  console.log("productId", productId);
 
   try {
     const detailProduct = await Product.findById(productId);

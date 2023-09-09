@@ -1,4 +1,5 @@
 const Order = require("../models/Order.model");
+const Product = require("../models/Product.model");
 
 const addToCart = async (req, res) => {
   const { userId } = req.params;
@@ -19,17 +20,24 @@ const addToCart = async (req, res) => {
     }
 
     //   Kiểm tra xem sản phẩm tồn tại trong giở hàng chưa
-    const existingProduct = order.items.find(
+    const index = order.items.findIndex(
       (item) => item.product.toString() == productId.toString()
     );
 
-    if (existingProduct) {
-      // nếu tồn tại tăng giá trị quantity lên
-      existingProduct.quantity += quantity;
+    // nếu tồn tại sản phẩm cần kiểm tra xem số lượng sản phẩm có = 0 hay ko
+    if (index !== -1) {
+      if (order.items[index].quantity + quantity == 0) {
+        // xóa sản phẩm luôn
+        order.items.splice(index, 1);
+      } else {
+        order.items[index].quantity += quantity;
+      }
     } else {
       // Nếu sản phẩm chưa tồn tại trong đơn đặt hàng, thêm mới
       order.items.push({ product: productId, quantity });
     }
+
+    // const addedProduct = await Product.findById(productId);
 
     // Save order lại
     await order.save();
@@ -38,6 +46,7 @@ const addToCart = async (req, res) => {
       status: true,
       message: "Thêm giỏ hàng thành công!",
       result: order,
+      // addedProduct,
     });
   } catch (error) {
     console.log("order error", error);
@@ -49,7 +58,6 @@ const addToCart = async (req, res) => {
 };
 
 const getOrderByUser = async (req, res) => {
-  console.log("req", req.user);
   try {
     const order = await Order.findOne({
       user: req.user.id,
@@ -61,7 +69,7 @@ const getOrderByUser = async (req, res) => {
     return res.send({
       status: true,
       message: "Lấy thông tin giỏ hàng thành công!",
-      result: order,
+      result: order || {},
     });
   } catch (error) {
     console.log("get list error", error);
