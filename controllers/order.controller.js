@@ -57,7 +57,7 @@ const addToCart = async (req, res) => {
   }
 };
 
-const getOrderByUser = async (req, res) => {
+const getOrderCheckInByUser = async (req, res) => {
   try {
     const order = await Order.findOne({
       user: req.user.id,
@@ -80,7 +80,73 @@ const getOrderByUser = async (req, res) => {
   }
 };
 
+const checkOutCart = async (req, res) => {
+  const { userId } = req.params;
+  const { paymentStatus, paymentAt } = req.body;
+  console.log("body : ", req.body);
+  const time = new Date(paymentAt);
+  console.log("time : ", time.toString());
+
+  try {
+    // tìm order có tồn tại hay chưa
+    let order = await Order.findOne({
+      user: userId,
+      status: "CHECKIN",
+    });
+
+    if (!order) {
+      return res.status(404).send({
+        status: false,
+        message: "Không tồn tại giỏ hàng!",
+      });
+    }
+
+    if (paymentStatus) {
+      order.paymentAt = new Date(paymentAt);
+      order.status = "CHECKOUT";
+
+      // Save order lại
+      await order.save();
+
+      return res.status(200).send({
+        status: true,
+        message: "Thanh toán thành công!",
+        result: order,
+      });
+    }
+  } catch (error) {
+    return res.status(500).send({
+      status: false,
+      message: "Có lỗi khi thêm giỏ hàng!",
+    });
+  }
+};
+
+const getOrderListByUser = async (req, res) => {
+  try {
+    const order = await Order.find({
+      user: req.user.id,
+    })
+      .populate("user")
+      .populate("items.product");
+
+    return res.send({
+      status: true,
+      message: "Lấy danh sách order thành công!",
+      result: order,
+    });
+  } catch (error) {
+    console.log("get list error", error);
+    return res.send({
+      status: false,
+      message: "Có lỗi khi lấy danh sách order!",
+    });
+  }
+};
+
 module.exports = {
   addToCart,
-  getOrderByUser,
+  getOrderCheckInByUser,
+  checkOutCart,
+  getOrderListByUser,
 };

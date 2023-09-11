@@ -21,6 +21,7 @@ const orderSchema = new Schema({
       },
     },
   ],
+  paymentAt: Date,
   status: {
     type: String,
     enum: ["CHECKIN", "CHECKOUT"],
