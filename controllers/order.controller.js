@@ -126,6 +126,7 @@ const getOrderListByUser = async (req, res) => {
   try {
     const order = await Order.find({
       user: req.user.id,
+      status: "CHECKOUT",
     })
       .populate("user")
       .populate("items.product");
@@ -144,9 +145,36 @@ const getOrderListByUser = async (req, res) => {
   }
 };
 
+const getDetailOrderById = async (req, res) => {
+  const { orderId } = req.query;
+  console.log("getDetailOrderById", req.query);
+
+  try {
+    const order = await Order.findOne({
+      _id: orderId,
+      user: req.user.id,
+    })
+      .populate("user")
+      .populate("items.product");
+
+    return res.send({
+      status: true,
+      message: "Lấy chi tiết order thành công!",
+      result: order || [],
+    });
+  } catch (error) {
+    console.log("get list error", error);
+    return res.send({
+      status: false,
+      message: "Có lỗi khi lấy chi tiết order!",
+    });
+  }
+};
+
 module.exports = {
   addToCart,
   getOrderCheckInByUser,
   checkOutCart,
   getOrderListByUser,
+  getDetailOrderById,
 };
