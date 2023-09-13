@@ -10,6 +10,7 @@ const Product = require("./models/Product.model");
 const Order = require("./models/Order.model");
 
 // import dummy data
+const { productDummy } = require("./DummyData/dummyData");
 
 const app = express();
 
@@ -21,12 +22,6 @@ app.use("/api/v1", rootRouter);
 
 // test create server
 app.get("/", async (req, res) => {
-  // const user = await User.find();
-
-  // const hotel = await Hotel.find();
-  // const room = await Room.find();
-  // const transaction = await Transaction.find();
-
   res.send({
     message: "Server is running",
   });
@@ -36,11 +31,17 @@ app.listen(process.env.PORT, () => {
   connectDB()
     .then(async (result) => {
       console.log("Connected!");
-      const userAdmin = await User.findOne({ isAdmin: true });
-      const product = await Product.findOne();
-      const order = await Order.findOne();
 
-      // console.log("userAdmin", userAdmin);
+      // Nạp product dummy
+      const existProduct = await Product.countDocuments();
+      console.log("existProduct", existProduct);
+      if (existProduct == 0) {
+        await Product.insertMany(productDummy);
+        console.log("Nạp dữ liệu Product dummy thành công!");
+      }
+
+      // Tạo user admin nếu trong hệ thống ko có
+      const userAdmin = await User.findOne({ isAdmin: true });
 
       if (!userAdmin) {
         await User.create({
@@ -50,6 +51,7 @@ app.listen(process.env.PORT, () => {
           phoneNumber: "0909123456",
           isAdmin: true,
         });
+        console.log("Tạo user quyền Admin thành công!");
       }
     })
     .catch((error) => console.log(error));
