@@ -2,7 +2,7 @@ const User = require("../models/User.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const getListUser = async (req, res) => {
+const getListClient = async (req, res) => {
   // Tạo option phân trang
   const page = +req.query.page || 1;
   const perPage = +req.query.perPage || null;
@@ -11,26 +11,32 @@ const getListUser = async (req, res) => {
     /**
      *  lấy dữ liệu dạng phân trang và lọc theo những giao dịch mới nhất
      */
-    const userList = await User.find()
+    const userList = await User.find({
+      isAdmin: false,
+      isSupporter: false,
+    })
       .skip((page - 1) * perPage)
       .limit(perPage)
       .sort({ _id: -1 });
 
     // Đếm số lượng transaction
-    const totalUser = await User.countDocuments();
+    const totalClient = await User.countDocuments({
+      isAdmin: false,
+      isSupporter: false,
+    });
 
     return res.send({
       status: true,
-      message: "Lấy danh sách User thành công",
+      message: "Lấy danh sách Client thành công!",
       result: userList,
       page,
       perPage,
-      totalUser: totalUser,
+      totalClient: totalClient,
     });
   } catch (error) {
     return res.send({
       status: false,
-      message: "Lấy danh sách User có lỗi",
+      message: "Lấy danh sách Client có lỗi!",
       result: error,
     });
   }
@@ -131,5 +137,5 @@ const loginUser = async (req, res) => {
 module.exports = {
   createUser,
   loginUser,
-  getListUser,
+  getListClient,
 };

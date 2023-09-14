@@ -6,8 +6,12 @@ const {
   getOrderListByUser,
   getDetailOrderById,
 } = require("../controllers/order.controller");
-const { authenticate } = require("../middlewares/auth.middleware");
+const { authenticate, authorize } = require("../middlewares/auth.middleware");
 const orderRouter = express.Router();
+
+/**
+ * Phần thao tác với cart
+ */
 
 // tìm giỏ hàng của 1 user bất kỳ có kiểm tra token
 orderRouter.get("/view/:userId", authenticate, getOrderCheckInByUser);
@@ -19,7 +23,7 @@ orderRouter.post("/add-to-cart/:userId", authenticate, addToCart);
 orderRouter.put("/chekout/:userId", authenticate, checkOutCart);
 
 /**
- * Phần CRUD order
+ * Phần thao tác với order
  */
 
 // get order list by userId
@@ -27,5 +31,8 @@ orderRouter.get("/:userId", authenticate, getOrderListByUser);
 
 // get order list by orderId
 orderRouter.get("/detail/:userId", authenticate, getDetailOrderById);
+
+// get all order
+orderRouter.get("/admin/:userId", authenticate, authorize, getDetailOrderById);
 
 module.exports = orderRouter;

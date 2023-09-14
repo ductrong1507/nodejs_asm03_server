@@ -1,19 +1,17 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/User.model");
 
 // Kiểm tra có phải admin không
-const authorize = (req, res, next) => {
-  let isAdmin;
+const authorize = async (req, res, next) => {
+  console.log("req.user", req.user);
+  // tìm user theo user đã giải mã ở phần authenticate middleware
+  const user = await User.findById(req.user.id);
+  console.log("user", user);
 
-  if (req.header("isAdmin") == "true") {
-    isAdmin = true;
-  } else {
-    isAdmin = false;
-  }
-
-  if (isAdmin) {
+  if (user.isAdmin || user.isSupporter) {
     next();
   } else {
-    res.send({
+    res.status(403).send({
       status: false,
       message: "Bạn không có quyền Admin!",
     });

@@ -171,6 +171,8 @@ const getDetailOrderById = async (req, res) => {
   }
 };
 
+const getOrderList = async (req, res) => {};
+
 module.exports = {
   addToCart,
   getOrderCheckInByUser,
