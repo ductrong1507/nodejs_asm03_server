@@ -25,7 +25,7 @@ const getListClient = async (req, res) => {
       isSupporter: false,
     });
 
-    return res.send({
+    return res.status(200).send({
       status: true,
       message: "Lấy danh sách Client thành công!",
       result: userList,
@@ -34,7 +34,7 @@ const getListClient = async (req, res) => {
       totalClient: totalClient,
     });
   } catch (error) {
-    return res.send({
+    return res.status(500).send({
       status: false,
       message: "Lấy danh sách Client có lỗi!",
       result: error,

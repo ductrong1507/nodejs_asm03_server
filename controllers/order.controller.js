@@ -171,7 +171,91 @@ const getDetailOrderById = async (req, res) => {
   }
 };
 
-const getOrderList = async (req, res) => {};
+const getOrderList = async (req, res) => {
+  // Tạo option phân trang
+  const page = +req.query.page || 1;
+  const perPage = +req.query.perPage || null;
+
+  try {
+    /**
+     *  lấy dữ liệu dạng phân trang và lọc theo những order mới nhất
+     */
+    const orderList = await Order.find()
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .sort({ _id: -1 })
+      .populate("user")
+      .populate("items.product");
+
+    // Đếm số lượng order
+    const totalOrder = await Order.countDocuments();
+
+    // Tính tổng tiền từ các order đã thanh toán (đã Checkout)
+    const totalPayment = await Order.aggregate([
+      {
+        $match: {
+          status: "CHECKOUT", // Lọc các đơn đặt hàng có trạng thái CHECKOUT
+        },
+      },
+      {
+        $unwind: "$items", // Mở rộng mảng items thành các documents riêng biệt
+      },
+      {
+        $lookup: {
+          from: "products", // Tên bảng Product
+          localField: "items.product", // Trường tham chiếu trong Order
+          foreignField: "_id", // Trường tham chiếu trong Product
+          as: "productInfo", // Đặt tên cho mảng kết quả
+        },
+      },
+      {
+        $unwind: "$productInfo", // Mở rộng mảng productInfo thành các documents riêng biệt
+      },
+      {
+        $addFields: {
+          price: {
+            $toDouble: "$productInfo.price", // Chuyển đổi trường "price" thành kiểu số
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          totalPrice: {
+            $multiply: ["$items.quantity", "$price"], // Tính tổng tiền
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: {
+            $sum: "$totalPrice", // Tính tổng tổng tiền từ tất cả các documents
+          },
+        },
+      },
+    ]);
+
+    // console.log("totalPayment", totalPayment);
+
+    return res.status(200).send({
+      status: true,
+      message: "Lấy danh sách Order thành công!",
+      result: orderList,
+      page,
+      perPage,
+      totalOrder: totalOrder,
+      totalPayment: totalPayment[0].total.toString(),
+    });
+  } catch (error) {
+    console.log("error", error);
+    return res.status(500).send({
+      status: false,
+      message: "Lấy danh sách Order có lỗi!",
+      result: error,
+    });
+  }
+};
 
 module.exports = {
   addToCart,
@@ -179,4 +263,5 @@ module.exports = {
   checkOutCart,
   getOrderListByUser,
   getDetailOrderById,
+  getOrderList,
 };

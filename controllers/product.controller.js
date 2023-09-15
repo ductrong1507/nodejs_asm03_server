@@ -6,6 +6,7 @@ const getListProduct = async (req, res) => {
   const perPage = +req.query.perPage || null;
   const category = req.query.category || null;
   const searchWord = req.query.searchWord || null;
+
   try {
     let productList;
 

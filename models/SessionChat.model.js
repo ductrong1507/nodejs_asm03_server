@@ -3,7 +3,11 @@ const { Schema } = mongoose;
 
 // Tạo Schema
 const sessionChatSchema = new Schema({
-  userId: {
+  client: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+  },
+  supporter: {
     type: Schema.Types.ObjectId,
     ref: "User",
   },

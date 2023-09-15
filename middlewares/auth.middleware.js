@@ -3,10 +3,8 @@ const User = require("../models/User.model");
 
 // Kiểm tra có phải admin không
 const authorize = async (req, res, next) => {
-  console.log("req.user", req.user);
   // tìm user theo user đã giải mã ở phần authenticate middleware
   const user = await User.findById(req.user.id);
-  console.log("user", user);
 
   if (user.isAdmin || user.isSupporter) {
     next();

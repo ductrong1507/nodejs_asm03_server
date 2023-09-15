@@ -5,6 +5,7 @@ const {
   checkOutCart,
   getOrderListByUser,
   getDetailOrderById,
+  getOrderList,
 } = require("../controllers/order.controller");
 const { authenticate, authorize } = require("../middlewares/auth.middleware");
 const orderRouter = express.Router();
@@ -33,6 +34,6 @@ orderRouter.get("/:userId", authenticate, getOrderListByUser);
 orderRouter.get("/detail/:userId", authenticate, getDetailOrderById);
 
 // get all order
-orderRouter.get("/admin/:userId", authenticate, authorize, getDetailOrderById);
+orderRouter.get("/admin/:userId", authenticate, authorize, getOrderList);
 
 module.exports = orderRouter;
