@@ -2,7 +2,7 @@
 
 **GitHub:** https://github.com/ductrong1507/nodejs_asm03_server
 
-**Deloy:** _Coming soon..._
+**Deloy:** https://funix-nodejs-asm03-appleshop.onrender.com/
 
 ## Tổng quan dự án
 
